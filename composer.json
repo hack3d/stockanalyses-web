@@ -1,0 +1,14 @@
+{
+    "name": "hack3d/stockanalyses-web",
+    "description": "Webfrontend for stockanalyses",
+    "type": "project",
+    "require": {
+        "bcosca/fatfree": "^3.6"
+    },
+    "authors": [
+        {
+            "name": "Raphael Lekies",
+            "email": "raphael.lekies@mademyevening.com"
+        }
+    ]
+}
