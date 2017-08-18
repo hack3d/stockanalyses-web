@@ -1,0 +1,71 @@
+<script type="text/javascript">
+  $(document).ready(function() {
+      $('#inputPassword').keyup(checkPasswordMatch);
+      $('#inputPassword2').keyup(checkPasswordMatch);
+      $('#inputEmail').keyup(isValidEmailAddress);
+  });
+
+  function checkPasswordMatch(){
+    var password = $('#inputPassword').val();
+    var confirmPassword = $('#inputPassword2').val();
+
+    // Check if passwords are equal
+    if(password != confirmPassword) {
+      $('#check-1').addClass("has-error has-feedback");
+      $('#check-2').addClass("has-error has-feedback");
+      $('#save').prop('disabled', true);
+    } else {
+      $('#check-1').removeClass("has-error").addClass("has-success");
+      $('#check-2').removeClass("has-error").addClass("has-success");
+      $('#save').prop('disabled', false);
+    }
+  }
+
+  function isValidEmailAddress() {
+    var pattern = /^([a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+(\.[a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+)*|"((([ \t]*\r\n)?[\t]+)?([\x01-\x08\x0b\x0c\x0e-\x1f\x7f\x21\x23-\x5b\x5d-\x7e\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|\\[\x01-\x09\x0b\x0c\x0d-\x7f\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))*(([\t]*\r\n)?[\t]+)?")@(([a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.)+([a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.?$/i;
+    var emailAddress = $('#inputEmail').val();
+
+    if(!pattern.test(emailAddress)) {
+      console.log("Error");
+      $('#check-3').addClass("has-error has-feedback");
+      $('#save').prop('disabled', true);
+    } else {
+      console.log("Success");
+      $('#check-3').removeClass("has-error").addClass("has-success");
+      $('#save').prop('disabled', false);
+    }
+  }
+</script>
+<form action="{{ @BASE.'/registration/process' }}" method="post" class="form-horizontal">
+  <div class="form-group">
+    <label for="InputUsername" class="col-sm-2 control-label text-capitalize">{{ @username }}</label>
+    <div class="col-sm-8">
+      <input type="text" name="username" class="form-control text-capitalize" id="inputUsername" placeholder="{{ @username }}">
+    </div>
+  </div>
+  <div class="form-group" id="check-3">
+    <label for="InputEmail" class="col-sm-2 control-label text-capitalize">{{ @mail }}</label>
+    <div class="col-sm-8">
+      <input type="text" name="email" class="form-control text-capitalize" id="inputEmail" placeholder="{{ @mail }}">
+    </div>
+  </div>
+  <div class="form-group" id="check-1">
+    <label for="InputPassword" class="col-sm-2 control-label text-capitalize">{{ @password }}</label>
+    <div class="col-sm-8">
+      <input type="password" name="password" class="form-control text-capitalize" id="inputPassword" placeholder="{{ @password }}">
+    </div>
+  </div>
+  <div class="form-group" id="check-2">
+    <label for="InputPassword2" class="col-sm-2 control-label text-capitalize">{{ @password2 }}</label>
+    <div class="col-sm-8">
+      <input type="password" name="password2" class="form-control text-capitalize" id="inputPassword2" placeholder="{{ @password2 }}">
+    </div>
+  </div>
+  <div class="control-group">
+    <div class="col-sm-offset-2 col-sm-10">
+      <input type="hidden" name="create" value="create">
+      <button id="save" type="submit" class="btn btn-primary text-capitalize"><i class="icon-ok icon-white"></i> {{ @register }}</button>
+      <a href="{{ @BASE.'/' }}" class="btn btn-default text-capitalize" role="button"> {{ @cancel }}</a>
+    </div>
+  </div>
+</form>

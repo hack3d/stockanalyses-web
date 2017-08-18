@@ -1,23 +1,23 @@
 [
     {
         "name": "bcosca/fatfree",
-        "version": "3.6.1",
-        "version_normalized": "3.6.1.0",
+        "version": "3.6.2",
+        "version_normalized": "3.6.2.0",
         "source": {
             "type": "git",
             "url": "https://github.com/bcosca/fatfree.git",
-            "reference": "2920fecebf4f01a3d5fc5a3dd909a66319e1ebea"
+            "reference": "e9aec879272c7474294c51c6c00802615afa32a6"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/bcosca/fatfree/zipball/2920fecebf4f01a3d5fc5a3dd909a66319e1ebea",
-            "reference": "2920fecebf4f01a3d5fc5a3dd909a66319e1ebea",
+            "url": "https://api.github.com/repos/bcosca/fatfree/zipball/e9aec879272c7474294c51c6c00802615afa32a6",
+            "reference": "e9aec879272c7474294c51c6c00802615afa32a6",
             "shasum": ""
         },
         "require": {
             "php": ">=5.3.6"
         },
-        "time": "2017-04-02T10:02:41+00:00",
+        "time": "2017-06-26T10:14:59+00:00",
         "type": "library",
         "installation-source": "source",
         "autoload": {
