@@ -119,4 +119,31 @@ class ApiController extends Controller {
       $this->f3->set('view', 'api/default.html');
       echo json_encode($api->cast());
     }
+
+    function get_mailer_jobs() {
+      $api = new MailerJob($this->db);
+      $api->getJob();
+
+      $this->f3->set('view', 'api/default.html');
+      echo json_encode($api->cast());
+    }
+
+    function set_mailer_jobs_state() {
+      $api = new MailerJob($this->db);
+
+      // parse json data
+      $obj = json_decode($this->f3->get('BODY'));
+
+      foreach($obj as $row) {
+          $result = $api->setJobState($this->f3->get('PARAMS.id'), $row->action);
+          if ($result == 1) {
+            $api->action = $row->action;
+            $api->idemail_queue = $this->f3->get('PARAMS.id');
+          }
+
+      }
+
+      $this->f3->set('view', 'api/default.html');
+      echo json_encode($api->cast());
+    }
 }

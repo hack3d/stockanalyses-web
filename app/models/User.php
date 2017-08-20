@@ -22,7 +22,7 @@ class User extends DB\SQL\Mapper {
   }
 
   public function log_login() {
-    $result = $this->db->exec('call');
+    $result = $this->db->exec('call sp_insert_log_login(@out, )');
     return $result;
   }
 

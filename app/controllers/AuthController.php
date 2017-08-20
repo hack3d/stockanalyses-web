@@ -44,6 +44,13 @@ class AuthController extends Controller {
     }
   }
 
+  function activation() {
+    $user = new User($this->db);
+    $result = $user->getActivationCode($this->f3->get('PARAMS.activation_code'));
+
+    // Check if activation is needed
+  }
+
 
 	function authenticate() {
     if($this->f3->exists('POST.create')) {
@@ -63,7 +70,11 @@ class AuthController extends Controller {
 			       $this->f3->reroute('/login/failed/We could not found any match for your input!');
 		    }
 
-		    if(password_verify($password, $user->password)) {
+        if($user->state == 3) {
+          $this->f3->reroute('/login/failed/'.$this->f3->get('reroute_activation_needed'));
+        }
+
+		    if(password_verify($password, $user->password) && ($user->state == 0)) {
 			       $this->f3->set('SESSION.user', $user->username);
 			       $this->f3->reroute('/dashboard');
 		    } else {
