@@ -13,6 +13,16 @@ class User extends DB\SQL\Mapper {
     return $this->query;
   }
 
+  public function getActivationCode($activation_code) {
+    $result = $this->db->exec('select activation_code, approved from user_activation where activation_code = ?', $activation_code);
+    return $result;
+  }
+
+  public function setActivationApproved($activation_code) {
+    $result = $this->db->exec('call sp_update_user_activation(@out, ?, ?)', array(1 => $activation_code, 2 => 'sp_update_user_activation'));
+    return $result;
+  }
+
   public function add($username, $email, $password) {
     // hash the password
     $password = password_hash($password, PASSWORD_DEFAULT);

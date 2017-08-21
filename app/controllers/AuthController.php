@@ -49,6 +49,22 @@ class AuthController extends Controller {
     $result = $user->getActivationCode($this->f3->get('PARAMS.activation_code'));
 
     // Check if activation is needed
+    if(empty($result)) {
+      $this->f3->reroute('/users/activate/'.$this->f3->get('PARAMS.activation_code').'/failed/'.$this->f3->get('reroute_activation_failed'));
+    } else {
+      if($user->setActivationApproved($this->f3->get('PARAMS.activation_code')) == "1") {
+        $this->f3->reroute('/users/activate/'.$this->f3->get('PARAMS.activation_code').'/success/'.$this->f3->get('reroute_activation_success'));
+      } else {
+        $this->f3->reroute('/users/activate/'.$this->f3->get('PARAMS.activation_code').'/failed/'.$this->f3->get('reroute_activation_failed2'));
+      }
+
+    }
+
+    $this->f3->set('page_head', $this->f3->get('page_head_account_activation'));
+    $this->f3->set('message', $this->f3->get('PARAMS.message'));
+    $this->f3->set('message_failed', $this->f3->get('PARAMS.message_failed'));
+    $this->f3->set('view', 'account_activation.htm');
+
   }
 
 
