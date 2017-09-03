@@ -1,0 +1,23 @@
+<div class="container">
+  <div class="col-sm-2">
+    <div class="list-group">
+      <a href="{{ @BASE.'/portfolio/create/'.@SESSION.user }}" class="list-group-item text-capitalize"><i class="glyphicon glyphicon-plus"></i> {{ @add }}</a>
+    </div>
+  </div>
+  <div class="col-sm-10">
+    <table class="table table-bordered">
+      <tr>
+        <th class="text-capitalize">{{ @name }}</th>
+        <th class="text-capitalize">{{ @capital_start }}</th>
+        <th class="text-capitalize">{{ @capital_current }}</th>
+      </tr>
+      <repeat group="{{ @portfolios }}" value="{{ @portfolio }}">
+        <tr>
+          <td><a href="{{ @BASE.'/portfolio/detail/'.@portfolio.portfolio_head_id }}">{{ @portfolio.portfolioname }}</a></td>
+          <td>{{ @portfolio.capital_start }}</td>
+          <td>{{ @portfolio.capital_current }}</td>
+        </tr>
+      </repeat>
+    </table>
+  </div>
+</div>

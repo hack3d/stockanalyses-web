@@ -8,7 +8,7 @@ class MailerJob extends DB\SQL\Mapper {
 
   public function getJob() {
       // get a job
-      $this->load(array('timestamp <= now() and status = 1000'), array('order' => 'timestamp desc', 'limit' => 1));
+      $this->load(array('timestamp <= now() and action = 1000'), array('order' => 'timestamp desc', 'limit' => 1));
 
       // return result
       return $this->query;

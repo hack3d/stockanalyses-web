@@ -146,4 +146,12 @@ class ApiController extends Controller {
       $this->f3->set('view', 'api/default.html');
       echo json_encode($api->cast());
     }
+
+    function get_advicer_jobs() {
+      $api = new AdvicerJob($this->db);
+      $api->getJob();
+
+      $this->f3->set('view', 'api/default.html');
+      echo json_encode($api->cast());
+    }
 }

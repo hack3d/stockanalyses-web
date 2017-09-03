@@ -14,4 +14,9 @@ class Exchange extends DB\SQL\Mapper {
       return $this->query;
   }
 
+  public function getExchange() {
+    $this->load();
+    return $this->query;
+  }
+
 }

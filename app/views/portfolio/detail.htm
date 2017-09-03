@@ -1,0 +1,27 @@
+<div class="container">
+  <div class="col-sm-2">
+    <div class="list-group">
+      <a href="{{ @BASE.'/portfolio/detail/'.@PARAMS.id.'/create'}}" class="list-group-item text-capitalize"><i class="glyphicon glyphicon-plus"></i> {{ @add }}</a>
+    </div>
+  </div>
+  <div class="col-sm-10">
+    <table class="table table-bordered">
+      <tr>
+        <th class="text-capitalize">{{ @stock }}</th>
+        <th class="text-capitalize">{{ @quantity }}</th>
+        <th class="text-capitalize">{{ @price }}</th>
+        <th class="text-capitalize">{{ @exchange }}</th>
+        <th class="text-capitalize">{{ @state }}</th>
+      </tr>
+      <repeat group="{{ @portfolios }}" value="{{ @portfolio_pos }}">
+        <tr>
+          <td>{{ @portfolio_pos.value }}</td>
+          <td>{{ @portfolio_pos.quantity }}</td>
+          <td>{{ @portfolio_pos.price }}</td>
+          <td>{{ @portfolio_pos.exchange }}</td>
+          <td>{{ @portfolio_pos.state }}</td>
+        </tr>
+      </repeat>
+    </table>
+  </div>
+</div>

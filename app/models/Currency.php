@@ -14,4 +14,9 @@ class Currency extends DB\SQL\Mapper {
       return $this->query;
   }
 
+  public function getCurrency() {
+    $this->load(array('state=0'), array('order' => 'currency_name asc'));
+    return $this->query;
+  }
+
 }
