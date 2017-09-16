@@ -67,9 +67,11 @@ class PortfolioController extends Controller {
       $portfolio = new Portfolio($this->db);
     } else {
       $currency = new Currency($this->db);
+      $exchange = new Exchange($this->db);
 
       $this->f3->set('page_head', $this->f3->get('page_head_portfolio_pos_create'));
       $this->f3->set('currencies', $currency->getCurrency());
+      $this->f3->set('exchanges', $exchange->getExchange());
       $this->f3->set('message', $this->f3->get('PARAMS.message'));
       $this->f3->set('message_failed', $this->f3->get('PARAMS.message_failed'));
       $this->f3->set('view', 'portfolio/pos_create.htm');

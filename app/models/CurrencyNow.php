@@ -11,4 +11,9 @@ class CurrencyNow extends DB\SQL\Mapper {
     return $result;
   }
 
+  public function getUnitpriceByBaseQuoteExchange($base, $quote, $exchange) {
+    $this->load(array('base_currency=? and quote_currency=? and exchange_idexchange=?', array($base, $quote, $exchange)), array('order' => 'insert_timestamp desc', 'limit' => 1));
+    return $this->query;
+  }
+
 }

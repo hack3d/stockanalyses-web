@@ -154,4 +154,33 @@ class ApiController extends Controller {
       $this->f3->set('view', 'api/default.html');
       echo json_encode($api->cast());
     }
+
+    function get_tradingpair() {
+      $api = new ExchangeToTrade($this->db);
+      $api->getTradingpairByExchange($this->f3->get('PARAMS.exchange_id'));
+
+      $this->f3->set('view', 'api/default.html');
+      echo json_encode($api->cast());
+    }
+
+    function get_tradingpair_base() {
+      $api = new ExchangeToTrade($this->db);
+      $api->getTradingpairByExchangeAndBase($this->f3->get('PARAMS.exchange_id'), $this->f3->get('PARAMS.base'));
+
+      $this->f3->set('view', 'api/default.html');
+      echo json_encode($api->cast());
+    }
+
+    function get_tradingpair_unitprice() {
+      $currency = new Currency($this->db);
+      $currency_now = new CurrencyNow($this->db);
+
+      $base = $currency->getCurrencyBySymbol($this->f3->get('PARAMS.base'));
+      $quote = $currency->getCurrencyBySymbol($this->f3->get('PARAMS.quote'));
+
+      $currency_now->getUnitpriceByBaseQuoteExchange($base[0]['currency_id'], $quote[0]['currency_id'], $this->f3->get('PARAMS.exchange_id'));
+
+      $this->f3->set('view', 'api/default.html');
+      echo json_encode($currency_now->cast());
+    }
 }

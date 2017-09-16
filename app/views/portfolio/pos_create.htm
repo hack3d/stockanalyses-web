@@ -1,55 +1,135 @@
 <script type="text/javascript">
 $(document).ready(function () {
+  var quoteRequestString = "";
   //called when key is pressed in textbox
   $("#inputQuantity").keypress(function (e) {
      //if the letter is not digit then display error and don't type anything
      if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
-       $('#check-1').addClass('has-error has-feedback');
+       $("#check-1").addClass("has-error has-feedback");
         //display error message
         $("#errmsg").html("Digits Only").show().fadeOut("slow");
                return false;
      } else {
-       $('#check-1').removeClass('has-error').addClass('has-success');
+       $("#check-1").removeClass("has-error").addClass("has-success");
      }
+   });
+
+   // Calculate sum
+   $("#inputQuantity").change(function() {
+     var sum = 0;
+     sum = $("#inputQuantity").val() * $("#TextUnitPrice").val();
+     $("#TextTotalPrice").val(sum);
+   });
+
+   // request tradingpair for selected exchange
+   $("#exchange").change(function() {
+     // remove the dropdown if there was one before
+     $("#base").find("option").remove().end().append("<option value=\"all\">{{ @please_select }}</option>").val("All");
+
+     // some variables
+     var dataString = $(this).val();
+     quoteRequestString = dataString;
+     var html_base="";
+     var html_quote = "";
+     var base_length = 0;
+     $.ajax({
+       type: "GET",
+       url: "{{ @BASE.'/api/v1/tradingpair/' }}" + dataString,
+       success: function(data) {
+         data = "[" + data + "]";
+         var obj = jQuery.parseJSON(data);
+         console.log(obj);
+         base_length = obj.length;
+         $.each(obj, function(i, value) {
+           console.log("Base: " + obj[i].base);
+           $("#base").append($("<option></option>")
+           .attr("value",obj[i].base)
+           .text(obj[i].base));
+         });
+       }
+     });
+   });
+
+   // if we set a base we can search for the quote
+   $("#base").change(function() {
+     $("#quote").find("option")
+     .remove()
+     .end()
+     .append("<option value=\"all\">{{ @please_select }}</option>")
+     .val("All");
+
+     quoteRequestString = quoteRequestString + "/" + $(this).val();
+     var html_quote = '';
+     $.ajax({
+       type: "GET",
+       url: "{{ @BASE.'/api/v1/tradingpair/' }}" + quoteRequestString,
+       success: function(data) {
+         data = "[" + data + "]";
+         var obj = jQuery.parseJSON(data);
+         console.log(obj);
+         $.each(obj, function(i, value) {
+           console.log("quote: " + obj[i].quote);
+           $("#quote")
+              .append($("<option></option>")
+              .attr("value", obj[i].quote)
+              .text(obj[i].quote));
+         });
+       }
+     });
+   });
+
+   // Get latest price
+   $("#quote").change(function(){
+     $("#TextUnitPrice").val("0");
+     quoteRequestString = quoteRequestString + "/" + $(this).val();
+
+     $.ajax({
+       type: "GET",
+       url: "{{ @BASE.'/api/v1/tradingpair/' }}" + quoteRequestString,
+       success: function(data) {
+         data = "[" + data + "]";
+         var obj = jQuery.parseJSON(data);
+         $.each(obj, function(i, value) {
+           console.log("Last price: " + obj[i].last);
+           $("#TextUnitPrice").val(obj[i].last);
+         });
+       }
+     });
    });
 });
 </script>
 <form action="{{ @BASE.'/portfolio/detail/'.@PARAMS.id.'/create' }}" method="post" class="form-horizontal">
   <div class="form-group">
-    <label for="InputBasetype" class="col-sm-2 control-label text-capitalize">{{ @basetype }}</label>
+    <label for="InputExchange" class="col-sm-2 control-label text-capitalize">{{ @exchange }}</label>
     <div class="col-sm-8">
-      <select name="basetype" class="form-control">
-        <!-- <option value="stock">{{ @stock }}</option> -->
-        <option value="currency">{{ @currency }}</option>
+      <select id="exchange" name="exchange" class="form-control">
+        <option value="all">{{ @please_select }}</option>
+        <repeat group="{{ @exchanges }}" value="{{ @v_exchange }}">
+          <option value="{{ @v_exchange.idexchange }}">{{ @v_exchange.exchange_name }}</option>
+        </repeat>
       </select>
     </div>
   </div>
   <div class="form-group">
     <label for="InputBase" class="col-sm-2 control-label text-capitalize">{{ @base }}</label>
-    <div class="col-sm-8">
-      <select name="base" class="form-control">
-        <repeat group="{{ @currencies }}" value="{{ @currency2 }}">
-          <option value="{{ @currency2.symbol_currency }}">{{ @currency2.currency_name }}</option>
-        </repeat>
-      </select>
-    </div>
-  </div>
-  <div class="form-group">
-    <label for="InputQuotetype" class="col-sm-2 control-label text-capitalize">{{ @quotetype }}</label>
-    <div class="col-sm-8">
-      <select name="quotetype" class="form-control">
-        <option value="currency">{{ @currency }}</option>
+    <div id="Select-Base" class="col-sm-8">
+      <select id="base" name="base" class="form-control">
+        <option value="all">{{ @please_select }}</option>
       </select>
     </div>
   </div>
   <div class="form-group">
     <label for="InputQuote" class="col-sm-2 control-label text-capitalize">{{ @quote }}</label>
-    <div class="col-sm-8">
-      <select name="quote" class="form-control">
-        <repeat group="{{ @currencies }}" value="{{ @currency3 }}">
-          <option value="{{ @currency3.symbol_currency }}">{{ @currency3.currency_name }}</option>
-        </repeat>
+    <div id="Select-Quote" class="col-sm-8">
+      <select id="quote" name="quote" class="form-control">
+        <option value="all">{{ @please_select }}</option>
       </select>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="TextUnitPrice" class="col-sm-2 control-label text-capitalize">{{ @unit_price }}</label>
+    <div class="col-sm-8">
+      <input id="TextUnitPrice" class="form-control" name="unit_price" type="text" readonly>
     </div>
   </div>
   <div class="form-group" id="check-1">
@@ -57,6 +137,12 @@ $(document).ready(function () {
     <div class="col-sm-8">
       <input type="text" name="quantity" class="form-control text-capitalize" id="inputQuantity" placeholder="{{ @quantity }}">
       <span id="helpBlock" class="help-block">{{ @digits_only}}</span>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="TextTotalPrice" class="col-sm-2 control-label text-capitalize">{{ @total_price }}</label>
+    <div class="col-sm-8">
+      <input id="TextTotalPrice" class="form-control" type="text" readonly>
     </div>
   </div>
   <div class="control-group">
