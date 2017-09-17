@@ -64,7 +64,21 @@ class PortfolioController extends Controller {
 
   function addPortfolioPos() {
     if($this->f3->exists('POST.create')) {
-      $portfolio = new Portfolio($this->db);
+      $portfolio = new PortfolioPos($this->db);
+
+      $data['exchange_id'] = $this->f3->get('POST.exchange');
+      $data['base_currency'] = $this->f3->get('POST.base');
+      $data['quote_currency'] = $this->f3->get('POST.quote');
+      $data['unit_price'] = $this->f3->get('POST.unit_price');
+      $data['quantity'] = $this->f3->get('POST.quantity');
+      $data['portfolio_id'] = $this->f3->get('PARAMS.id');
+
+      if($portfolio->addPortfolioPos($data['portfolio_id'], $data['base_currency'], $data['quote_currency'], $data['quantity'], $data['unit_price'], $data['exchange_id']) == '1') {
+        $this->f3->reroute('/portfolio/detail/'.$data['portfolio_id'].'/success/'.$this->f3->get('reroute_portfolio_pos_create_success'));
+      } else {
+        $this->f3->reroute('/portfolio/detail/'.$data['portfolio_id'].'/failed/'.$this->f3->get('reroute_portfolio_pos_create_failed'));
+      }
+
     } else {
       $currency = new Currency($this->db);
       $exchange = new Exchange($this->db);

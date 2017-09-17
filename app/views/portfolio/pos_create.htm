@@ -1,6 +1,7 @@
 <script type="text/javascript">
 $(document).ready(function () {
   var quoteRequestString = "";
+  $("#save").prop('disabled', true);
   //called when key is pressed in textbox
   $("#inputQuantity").keypress(function (e) {
      //if the letter is not digit then display error and don't type anything
@@ -19,6 +20,16 @@ $(document).ready(function () {
      var sum = 0;
      sum = $("#inputQuantity").val() * $("#TextUnitPrice").val();
      $("#TextTotalPrice").val(sum);
+
+     // Enable save-button if all fields are filled.
+     if(($("#quote").val() != "all") && ($("#base").val() != "all") && ($("#exchange").val() != "all") && ($("#inputQuantity").val() > 0)) {
+       $("#save").prop("disabled", false);
+     }
+
+     // Disable button again if somebody will type a zero
+     if($("#inputQuantity").val() == 0) {
+       $("#save").prop("disabled", true);
+     }
    });
 
    // request tradingpair for selected exchange
