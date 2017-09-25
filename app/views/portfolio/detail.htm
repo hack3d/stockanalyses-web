@@ -1,3 +1,37 @@
+<script type="text/javascript">
+  $(document).ready(function() {
+    $(".sellBond").tooltip({title : "{{ @sell }}"});
+    $(".buyBond").tooltip({title : "{{ @buy }}"});
+  });
+
+  $(document).on("click", ".sellBond", function() {
+    var vBond = $(this).data("bond");
+    var vExchange = $(this).data("exchangeid");
+    var vQuote = $(this).data("quote");
+    var vPosId = $(this).data("posid");
+
+    $("#TextBond").val(vBond);
+    $("#HiddenExchange").val(vExchange);
+    $("#HiddenQuote").val(vQuote);
+    $("#PPosId").val(vPosId);
+
+
+    var dataString = $(this).data("exchangeid") + "/" + vBond + "/" + $(this).data("quote");
+    // Make a ajax call to get current rate of  the bond
+    $.ajax({
+      type: "GET",
+      url: "{{ @BASE.'/api/v1/tradingpair/' }}" + dataString,
+      success: function(data) {
+        data = "[" + data + "]";
+        var obj = jQuery.parseJSON(data);
+        $.each(obj, function(i, value) {
+          console.log("Last price: " + obj[i].last);
+          $("#TextCurrentRate").val(obj[i].last);
+        });
+      }
+    });
+  });
+</script>
 <div class="container">
   <div class="col-sm-2">
     <div class="list-group">
@@ -8,20 +42,91 @@
     <table class="table table-bordered">
       <tr>
         <th class="text-capitalize">{{ @stock }}</th>
+        <th class="text-capitalize">{{ @order_type }}</th>
         <th class="text-capitalize">{{ @quantity }}</th>
-        <th class="text-capitalize">{{ @price }}</th>
+        <th class="text-capitalize">{{ @rate }}</th>
+        <th class="text-capitalize">{{ @investment }}</th>
         <th class="text-capitalize">{{ @exchange }}</th>
-        <th class="text-capitalize">{{ @state }}</th>
+        <th class="text-capitalize">{{ @action }}</th>
       </tr>
       <repeat group="{{ @portfolios }}" value="{{ @portfolio_pos }}">
         <tr>
-          <td>{{ @portfolio_pos.value }}</td>
-          <td>{{ @portfolio_pos.quantity }}</td>
-          <td>{{ @portfolio_pos.price }}</td>
-          <td>{{ @portfolio_pos.exchange }}</td>
-          <td>{{ @portfolio_pos.state }}</td>
+          <td>{{ @portfolio_pos.pp_value1 }}</td>
+          <check if="{{ @portfolio_pos.pp_sell==0 }} and {{ @portfolio_pos.pp_buy==1 }}">
+            <true><td class="success text-uppercase">{{ @buy }}</td></true>
+          </check>
+          <check if="{{ @portfolio_pos.pp_sell==1 }} and {{ @portfolio_pos.pp_buy==0 }}">
+            <true><td class="danger text-uppercase">{{ @sell }}</td></true>
+          </check>
+          <check if="{{ @portfolio_pos.pp_sell==0 }} and {{ @portfolio_pos.pp_buy==0 }}">
+            <true><td class="text-uppercase">{{ @hold }}</td></true>
+          </check>
+          <td>{{ @portfolio_pos.pp_quantity }}</td>
+          <td>
+            {{ @portfolio_pos.pp_price }}
+            <check if="{{ @portfolio_pos.pp_value2=='eur'}}">
+              <true>€</true>
+            </check>
+          </td>
+          <td>
+            {{ @portfolio_pos.pp_investment }}
+            <check if="{{ @portfolio_pos.pp_value2=='eur'}}">
+              <true>€</true>
+            </check>
+          </td>
+          <td>{{ @portfolio_pos.pp_exchange }}</td>
+          <td><a href="#" class="sellBond" data-toggle="modal" data-exchangeid="{{ @portfolio_pos.pp_idexchange }}" data-posid="{{ @portfolio_pos.portfolio_pos_id }}" data-bond="{{ @portfolio_pos.pp_value1 }}" data-quote="{{ @portfolio_pos.pp_value2 }}" data-target="#sellBond"><span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span><span class="sr-only">{{ @sell }}</span></a> | <a href="#" class="buyBond" data-toggle="modal" data-target="#buyBond"><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span><span class="sr-only">{{ @buy }}</span></a></td>
         </tr>
       </repeat>
     </table>
+  </div>
+</div>
+
+<!-- Modal sellBond -->
+<div class="modal fade" id="sellBond" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+       <h4 class="modal-title text-capitalize" id="myModalLabel">{{ @sell_bond }}</h4>
+     </div>
+     <form action="{{ @BASE.'/portfolio/detail/'.@PARAMS.id.'/sell' }}" method="post" class="form-horizontal">
+     <div class="modal-body">
+       <div class="form-group">
+         <label for="TextBond" class="col-sm-2 control-label text-capitalize">{{ @bond }}</label>
+         <div class="col-sm-8">
+           <input id="TextBond" name="bond" class="form-control" type="text" value="" readonly>
+         </div>
+       </div>
+       <div class="form-group">
+         <label for="TextCurrentRate" class="col-sm-2 control-label text-capitalize"> {{ @current_rate }}</label>
+         <div class="col-sm-8">
+           <input id="TextCurrentRate" name="current_rate" class="form-control" type="text" value="" readonly>
+         </div>
+       </div>
+       <div class="form-group">
+         <label for="InputPricelimit" class="col-sm-2 control-label text-capitalize"> {{ @price_limit }}</label>
+         <div class="col-sm-8">
+           <input id="InputPricelimit" name="price_limit" class="form-control" type="text" value="">
+         </div>
+       </div>
+       <div class="form-group">
+         <label for="InputQuantity" class="col-sm-2 control-label text-capitalize"> {{ @quantity }}</label>
+         <div class="col-sm-8">
+           <input id="InputQuantity" name="quantity" class="form-control" type="text" value="">
+         </div>
+       </div>
+     </div>
+     <div class="modal-footer">
+       <input id="HiddenExchange" type="hidden" name="exchange" value="">
+       <input id="HiddenQuote" type="hidden" name="quote" value="">
+       <input id="PPosId" type="hidden" name="pos_id">
+       <input type="hidden" name="create" value="create">
+       <button type="button" class="btn btn-default" data-dismiss="modal">{{ @cancel }}</button>
+       <button type="button" class="btn btn-primary">{{ @save_changes }}</button>
+
+     </div>
+     </form>
+    </div>
   </div>
 </div>

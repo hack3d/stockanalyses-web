@@ -6,8 +6,8 @@ class PortfolioPos extends DB\SQL\Mapper {
 		parent::__construct($db, 'portfolio_pos');
 	}
 
-  public function addPortfolioPos($portfolio_head_id, $base, $quote, $quantity, $unit_price, $exchange) {
-    $result = $this->db->exec('call sp_insert_portfolio_pos(@out, ?, ?, ?, ?, ?, ?, ?)', array(1 => $portfolio_head_id, 2 => $base, 3 => $quote, 4 => $unit_price, 5 => $quantity, 6 => $exchange, 7 => 'sp_insert_portfolio_pos'));
+  public function addPortfolioPos($portfolio_head_id, $base, $quote, $quantity, $unit_price, $exchange, $sell, $buy, $sell_price, $buy_price) {
+    $result = $this->db->exec('call sp_insert_portfolio_pos(@out, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', array(1 => $portfolio_head_id, 2 => $base, 3 => $quote, 4 => $unit_price, 5 => $quantity, 6 => $exchange, 7 => $sell, 8 => $buy, 9 => $sell_price, 10 => $buy_price, 11 => 'sp_insert_portfolio_pos'));
     return $result;
   }
 

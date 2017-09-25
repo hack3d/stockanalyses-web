@@ -73,7 +73,7 @@ class PortfolioController extends Controller {
       $data['quantity'] = $this->f3->get('POST.quantity');
       $data['portfolio_id'] = $this->f3->get('PARAMS.id');
 
-      if($portfolio->addPortfolioPos($data['portfolio_id'], $data['base_currency'], $data['quote_currency'], $data['quantity'], $data['unit_price'], $data['exchange_id']) == '1') {
+      if($portfolio->addPortfolioPos($data['portfolio_id'], $data['base_currency'], $data['quote_currency'], $data['quantity'], $data['unit_price'], $data['exchange_id'], 0, 1, 0, $data['unit_price']) == '1') {
         $this->f3->reroute('/portfolio/detail/'.$data['portfolio_id'].'/success/'.$this->f3->get('reroute_portfolio_pos_create_success'));
       } else {
         $this->f3->reroute('/portfolio/detail/'.$data['portfolio_id'].'/failed/'.$this->f3->get('reroute_portfolio_pos_create_failed'));
@@ -89,6 +89,33 @@ class PortfolioController extends Controller {
       $this->f3->set('message', $this->f3->get('PARAMS.message'));
       $this->f3->set('message_failed', $this->f3->get('PARAMS.message_failed'));
       $this->f3->set('view', 'portfolio/pos_create.htm');
+    }
+  }
+
+  function sellOrder() {
+    if($this->f3->exists('POST.create')) {
+      $portfolio = new PortfolioPos($this->db);
+
+      $data['base_currency'] = $this->f3->get('POST.bond');
+      $data['quote_currency'] = $this->f3->get('POST.quote');
+      $data['quantity'] = $this->f3->get('POST.quantity');
+      $data['sell_price'] = $this->f3->get('POST.price_limit');
+      $data['exchange'] = $this->f3->get('POST.exchange');
+      $data['portfolio_id'] = $this->f3->get('PARAMS.id');
+      $data['portfolio_pos_id'] = $this->f3->get('POST.pos_ide');
+
+      // Try to place the sell Order
+      $result = $portfolio->addPortfolioPos();
+
+      // Update the old position
+      $result += $portfolio->updatePortfolioPos();
+
+      if($result == 2) {
+        // Success
+
+      } else {
+        // Failed
+      }
     }
   }
 
