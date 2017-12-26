@@ -29,7 +29,7 @@ class Controller {
 			$f3->get('dbpassword'),
 			array( \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION)
 		);
-	
+
 		$this->db = $db;
 	}
 }

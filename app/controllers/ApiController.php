@@ -50,13 +50,13 @@ class ApiController extends Controller {
     }
 
     function add_tickdata() {
-      $api = new CurrencyNow($this->db);
+      $api = new BondsCurrent($this->db);
 
       // parse json data
       $obj = json_decode($this->f3->get('BODY'));
 
       foreach($obj as $row) {
-          $result = $api->add($row->base, $row->quote, $row->high, $row->volume, $row->datetime, $row->bid, $row->ask, $row->vwap, $row->low, $row->exchange, $row->last);
+          $result = $api->add($row->isin, $row->exchange, $row->high, $row->low, $row->bid, $row->ask, $row->volume, $row->datetime, $row->last);
 
       }
 
@@ -155,12 +155,42 @@ class ApiController extends Controller {
       echo json_encode($api->cast());
     }
 
-    function get_tradingpair() {
-      $api = new ExchangeToTrade($this->db);
-      $api->getTradingpairByExchange($this->f3->get('PARAMS.exchange_id'));
+    function get_indicator_jobs() {
+      $api = new IndicatorJob($this->db);
+      $api->getJob();
 
       $this->f3->set('view', 'api/default.html');
       echo json_encode($api->cast());
+    }
+
+    function set_indicator_job_state() {
+      $api = new IndicatorJob($this->db);
+
+      // parse json data
+      $obj = json_decode($this->f3->get('BODY'));
+
+      foreach($obj as $row) {
+          $result = $api->setJobState($this->f3->get('PARAMS.id'), $row->action);
+          if ($result == 1) {
+            $api->action = $row->action;
+            $api->idemail_queue = $this->f3->get('PARAMS.id');
+          }
+      }
+
+      $this->f3->set('view', 'api/default.html');
+      echo json_encode($api->cast());
+    }
+
+    function get_tradingpair() {
+      $api = new ExchangeToTrade($this->db);
+      $test = $api->getTradingpairByExchange($this->f3->get('PARAMS.exchange_id'));
+
+      $cast=[];
+      foreach ($test as $x)
+        $cast[]=$x->cast();
+
+      $this->f3->set('view', 'api/default.html');
+      echo json_encode($cast);
     }
 
     function get_tradingpair_base() {
@@ -174,6 +204,8 @@ class ApiController extends Controller {
     function get_tradingpair_unitprice() {
       $currency = new Currency($this->db);
       $currency_now = new CurrencyNow($this->db);
+      $redis = new CurrencyNowRedis($this->redis);
+      echo $redis->addJobToQueue(uniqid(), 'btc');
 
       $base = $currency->getCurrencyBySymbol($this->f3->get('PARAMS.base'));
       $quote = $currency->getCurrencyBySymbol($this->f3->get('PARAMS.quote'));
@@ -182,5 +214,85 @@ class ApiController extends Controller {
 
       $this->f3->set('view', 'api/default.html');
       echo json_encode($currency_now->cast());
+    }
+
+    function get_stock_prices() {
+      $currency = new BondsCurrent($this->db);
+
+      $test = $currency->getPriceById($this->f3->get('PARAMS.bond_id'), $this->f3->get('PARAMS.period'));
+
+      $cast=[];
+      foreach ($test as $x)
+        $cast[]=$x->cast();
+
+      $this->f3->set('view', 'api/default.html');
+      echo json_encode($cast);
+    }
+
+    function add_trenddata() {
+      $trend = new Trend($this->db);
+
+      // parse json data
+      $obj = json_decode($this->f3->get('BODY'));
+
+      foreach($obj as $row) {
+          //echo "Bond: ".$row->bond_id."; Indicator: ".$row->indicator."; Value: ".$row->indicator_value."; ";
+          $result = $trend->add($row->bond_id, $row->currency_flag, $row->stock_flag, $row->indicator, $row->indicator_value);
+      }
+
+
+      $this->f3->set('view', 'api/default.html');
+      echo json_encode($trend->cast());
+    }
+
+    // Later on we need to validate all json input.
+    function json_validate($string) {
+      // decode the JSON data
+      $result = json_decode($string);
+
+      // switch and check possible JSON errors
+      switch (json_last_error()) {
+        case JSON_ERROR_NONE:
+            $error = ''; // JSON is valid // No error has occurred
+            break;
+        case JSON_ERROR_DEPTH:
+            $error = 'The maximum stack depth has been exceeded.';
+            break;
+        case JSON_ERROR_STATE_MISMATCH:
+            $error = 'Invalid or malformed JSON.';
+            break;
+        case JSON_ERROR_CTRL_CHAR:
+            $error = 'Control character error, possibly incorrectly encoded.';
+            break;
+        case JSON_ERROR_SYNTAX:
+            $error = 'Syntax error, malformed JSON.';
+            break;
+        // PHP >= 5.3.3
+        case JSON_ERROR_UTF8:
+            $error = 'Malformed UTF-8 characters, possibly incorrectly encoded.';
+            break;
+        // PHP >= 5.5.0
+        case JSON_ERROR_RECURSION:
+            $error = 'One or more recursive references in the value to be encoded.';
+            break;
+        // PHP >= 5.5.0
+        case JSON_ERROR_INF_OR_NAN:
+            $error = 'One or more NAN or INF values in the value to be encoded.';
+            break;
+        case JSON_ERROR_UNSUPPORTED_TYPE:
+            $error = 'A value of a type that cannot be encoded was given.';
+            break;
+        default:
+            $error = 'Unknown JSON error occured.';
+            break;
+      }
+
+      if ($error !== '') {
+        // throw the Exception or exit // or whatever :)
+        exit($error);
+      }
+
+      // everything is OK
+      return $result;
     }
 }
