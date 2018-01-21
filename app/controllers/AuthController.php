@@ -12,6 +12,10 @@ class AuthController extends Controller {
     $this->f3->set('view', 'welcome.htm');
   }
 
+  function haproxy_check() {
+    $this->f3->set('view', 'haproxy_check.htm');
+  }
+
 	function render() {
 		$this->f3->set('page_head', $this->f3->get('page_head_login'));
 		$this->f3->set('message', $this->f3->get('PARAMS.message'));
