@@ -14,6 +14,19 @@ class DownloaderJob extends DB\SQL\Mapper {
 	    return $this->query;
 	}
 
+  public function getJobsByExchange($exchange) {
+    $exchange = '%'.$exchange.'%';
+
+    // split exchange and isin
+    $this->exchange = "substring_index(`value`, '#', 1)";
+    $this->isin = "substring_index(`value`, '#', -1)";
+
+    // filter data
+    $this->load(array("value like ? and state = 0", $exchange));
+
+    return $this->query;
+  }
+
 	public function setJobState($id, $action) {
 	    $result = $this->db->exec('call sp_update_downloader_jq(@out,?,?,?)', array(1 => $id, 2 => $action, 3 => 'sp_update_downloader_jq'));
       return $result;

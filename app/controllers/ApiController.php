@@ -22,6 +22,21 @@ class ApiController extends Controller {
         echo json_encode($api->cast());
     }
 
+    function get_downloader_jobs_wss() {
+      $api = new DownloaderJob($this->db);
+      $test = $api->getJobsByExchange($this->f3->get('PARAMS.exchange'));
+
+      $cast=array();
+      foreach ($test as $x)
+        $cast[] = $x->cast();
+
+      $namedArray = array();
+      $namedArray['jobs_wss'] = $cast;
+
+      $this->f3->set('view', 'api/default.html');
+      echo json_encode($namedArray);
+    }
+
     function get_importer_jobs() {
       $api = new ImporterJob($this->db);
       $api->getJob();
@@ -216,17 +231,21 @@ class ApiController extends Controller {
       echo json_encode($currency_now->cast());
     }
 
-    function get_stock_prices() {
-      $currency = new BondsCurrent($this->db);
+    function get_stock_prices_1min() {
+      $currency = new BondsCurrentOneMinute($this->db);
 
       $test = $currency->getPriceById($this->f3->get('PARAMS.bond_id'), $this->f3->get('PARAMS.period'));
 
-      $cast=[];
+
+      $cast=array();
       foreach ($test as $x)
-        $cast[]=$x->cast();
+        $cast[] = $x->cast();
+
+      $namedArray = array();
+      $namedArray['prices'] = $cast;
 
       $this->f3->set('view', 'api/default.html');
-      echo json_encode($cast);
+      echo json_encode($namedArray);
     }
 
     function add_trenddata() {
