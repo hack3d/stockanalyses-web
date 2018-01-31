@@ -248,6 +248,22 @@ class ApiController extends Controller {
       echo json_encode($namedArray);
     }
 
+    function get_database_version() {
+      $version = new Version($this->db);
+
+      $test = $version->getVersion();
+
+      $cast = array();
+      foreach ($test as $x)
+        $cast[] = $x->cast();
+
+      $namedArray = array();
+      $namedArray['versions'] = $cast;
+
+      $this->f3->set('view', 'api/default.html');
+      echo json_encode($namedArray);
+    }
+
     function add_trenddata() {
       $trend = new Trend($this->db);
 

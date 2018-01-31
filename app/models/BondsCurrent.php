@@ -7,6 +7,9 @@ class BondsCurrent extends DB\SQL\Mapper {
 	}
 
   public function add($isin, $exchange, $high, $low, $bid, $ask, $volume, $datetime, $last) {
+    // Debug
+    //$logger = new Log('BondsCurrrent.log');
+    //$logger->write('ISIN: '.$isin.", exchange: ".$exchange.", last: ".$last.", high: ".$high.", low: ".$low.", ask: ".$ask.", bid: ".$bid.", volume: ".$volume.", datetime: ".$datetime);
     $result = $this->db->exec('call sp_insert_bonds_current(@out, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', array(1 =>$isin, 2 => $high, 3 => $volume, 4 => $datetime, 5 => $bid, 6 => $ask, 7 => $low, 8 => $exchange, 9 => $last, 10 => 'sp_insert_currency_now'));
     return $result;
   }
