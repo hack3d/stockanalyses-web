@@ -11,4 +11,8 @@ class BondsCurrentOneMinute extends DB\SQL\Mapper {
     return $this->query;
   }
 
+  public function aggregate() {
+    $result = $this->db->exec('call sp_stockdata_aggregate_1min(@out)');
+    return $result;
+  }
 }

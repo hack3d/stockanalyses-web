@@ -280,6 +280,23 @@ class ApiController extends Controller {
       echo json_encode($trend->cast());
     }
 
+    function set_stock_aggregate_1min() {
+      $bonds_current = new BondsCurrentOneMinute($this->db);
+      //$result = $bonds_current->aggregate();
+
+      if($result == 1) {
+        $result = array("aggregated" => true);
+      } else {
+        $result = array("aggregated" => false);
+      }
+
+      $namedArray = array();
+      $namedArray['stockdata_aggregate'] = $result;
+
+      $this->f3->set('view', 'api/default.html');
+      echo json_encode($namedArray);
+    }
+
     // Later on we need to validate all json input.
     function json_validate($string) {
       // decode the JSON data
